@@ -1,3 +1,7 @@
+const addButtonElement = document.querySelector('#js-add-todo');
+const todoInputElement = document.forms.todo;
+const ulTodoElement = document.querySelector('.js-list-todo');
+
 class TodoRequests {
 	static sendGetTodosRequest() {
 		return fetch('https://jsonplaceholder.typicode.com/todos').then((response) => response.json())
@@ -95,22 +99,6 @@ class TodoLogic {
 	}
 }
 
-// INIT TODOS
-
-const todosRopository = new TodosRopository();
-
-const addButtonElement = document.querySelector('#js-add-todo');
-const todoInputElement = document.forms.todo;
-const ulTodoElement = document.querySelector('.js-list-todo');
-
-init();
-
-function	init() {
-	TodoLogic.getTodos();
-	createAddTodoEventListener();
-	createTodoActionEventListener();
-}
-
 // EVENT LISTENERS
 
 function createAddTodoEventListener() {
@@ -179,3 +167,14 @@ function clearInput() {
 	todoInputElement.reset();
 }
 
+// INIT TODOS
+
+const todosRopository = new TodosRopository();
+
+init();
+
+function	init() {
+	TodoLogic.getTodos();
+	createAddTodoEventListener();
+	createTodoActionEventListener();
+}
