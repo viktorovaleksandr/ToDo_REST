@@ -4,22 +4,22 @@ const ulTodoElement = document.querySelector('.js-list-todo');
 
 class TodoRequests {
 	static sendGetTodosRequest() {
-		return fetch('https://jsonplaceholder.typicode.com/todos').then((response) => response.json())
+	return fetch('https://jsonplaceholder.typicode.com/todos').then((response) => response.json())
 	}
 
 	static sendPostTodoRequest(todo) {
-		return fetch('https://jsonplaceholder.typicode.com/todos', {
-  			method: 'POST',
-  			body: JSON.stringify(todo),
-  			headers: {
-    			'Content-type': 'application/json; charset=UTF-8',
-  			},
-		})
+	return fetch('https://jsonplaceholder.typicode.com/todos', {
+  		method: 'POST',
+  		body: JSON.stringify(todo),
+  		headers: {
+    		'Content-type': 'application/json; charset=UTF-8',
+  		},
+	})
   	.then((response) => response.json())
 	}
 
 	static sendPutTodoRequest(id,todo) {
-		return fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+	return fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
   		method: 'PUT',
   		body: JSON.stringify(todo),
   		headers: {
@@ -30,8 +30,8 @@ class TodoRequests {
 	}
 
 	static sendDeleteTodoRequest(id) {
-   	return fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-      	method: 'DELETE',
+   return fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+      method: 'DELETE',
    	});
 	}
 }
@@ -56,8 +56,8 @@ class TodoLogic {
 		const promise = TodoRequests.sendGetTodosRequest();
 
 	  	promise.then((todos) => {
-	  		renderTodos(todos);
-	  		todosRopository.todos = todos;
+	  	renderTodos(todos);
+	  	todosRopository.todos = todos;
 	  	});
 	}
 
@@ -66,9 +66,9 @@ class TodoLogic {
 
 		const promise = TodoRequests.sendPostTodoRequest(todo);
 		promise.then(todo => { 
-			clearInput();
-			renderTodo(todo);
-			todosRopository.todos.push(todo); 
+		clearInput();
+		todosRopository.todos.push(todo); 
+		renderTodo(todo);
 		});
 	}
 
@@ -78,9 +78,9 @@ class TodoLogic {
 
 		const promise = TodoRequests.sendDeleteTodoRequest(id);
 		promise.then(() => {
-			const listElementId = ulTodoElement.querySelector(`li[data-id="${id}"]`);
-			listElementId.remove();
-			todosRopository.todos = todosRopository.todos.filter(todo => todo.id !== id);
+		const listElementId = ulTodoElement.querySelector(`li[data-id="${id}"]`);
+		listElementId.remove();
+		todosRopository.todos = todosRopository.todos.filter(todo => todo.id !== id);
 		});
 	}
 
@@ -88,13 +88,12 @@ class TodoLogic {
 		const listElement = event.target.closest('li');
 		const id = parseInt(listElement.dataset.id, 10);
 		const todo = todosRopository.getTodoById(id);
-		
-		todoAssignUpdateData(todo);
-		const promise = TodoRequests.sendPutTodoRequest(id,todo);
+		if (todo.id === id) todo.completed = !todo.completed;
 
+		const promise = TodoRequests.sendPutTodoRequest(id,todo);
 		promise.then(todo => { 
-			const listElementId = ulTodoElement.querySelector(`li[data-id="${id}"]`);
-	   	listElementId.classList.toggle('list-group-item-info');
+		const listElementId = ulTodoElement.querySelector(`li[data-id="${id}"]`);
+	  	listElementId.classList.toggle('list-group-item-info');
 		});
 	}
 }
@@ -107,22 +106,27 @@ function createAddTodoEventListener() {
    })
 }
 
-function createTodoActionEventListener() {
+function createTodoUpdateEventListener() {
 	ulTodoElement.addEventListener('click', (event) => {
-
 		if(event.target.closest('li')) {
-		   TodoLogic.updateTodo(event);
+			TodoLogic.updateTodo(event);
 		}
-      if(event.target.closest('i')) {
-         TodoLogic.deleteTodo(event);
-      }
    })
+} 
+
+function createDeleteTodoEventListener() {
+	ulTodoElement.addEventListener('click', (event) => {
+   	if(event.target.closest('i')) {
+      	TodoLogic.deleteTodo(event);
+      	event.stopPropagation()
+    	}
+   },true)
 }
 
 // RENDER 
 
 function renderTodos(todos) {
-	const lists = todos.map((todo) => createListElement(todo));
+	const lists = todos.map((todos) => createListElement(todos));
 }
 
 function renderTodo(todo) {
@@ -150,17 +154,9 @@ function createListElement(todo) {
 function getTodoFormData() {
 	const formData = new FormData(todoInputElement);
 	return {
-      title: formData.get('name'),
-      completed: false,
+   title: formData.get('name'),
+   completed: false,
    }
-}
-
-function todoAssignUpdateData(todo) {
-	if (todo.completed) {
-		todo.completed = false;
-	} else {
-		todo.completed = true;
-	}
 }
 
 function clearInput() {
@@ -171,10 +167,10 @@ function clearInput() {
 
 const todosRopository = new TodosRopository();
 
-init();
-
-function	init() {
+function init() {
 	TodoLogic.getTodos();
 	createAddTodoEventListener();
-	createTodoActionEventListener();
+	createTodoUpdateEventListener();
+	createDeleteTodoEventListener();
 }
+init();
